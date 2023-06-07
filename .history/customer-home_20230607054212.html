@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Customer Home</title>
+</head>
+<body>
+  <h1>Welcome to the Customer Home</h1>
+  
+  <button onclick="createBooking()">Create Booking</button>
+  <button onclick="payment()">Payment</button>
+</body>
+  <script>
+      const createBooking = () => {
+        const apiUrl = "http://localhost:8083/api/v1/bookings/";  
+        const token = localStorage.getItem("token");
+
+        fetch(apiUrl, {
+          method: 'POST',
+          headers:{
+            'Content-Type':'application/json',
+            'Authorization':'Bearer ' + token;
+          }
+        }).then((res) => res.json())
+        .then((res) => window.loca)
+      }
+  </script>
+</html>
