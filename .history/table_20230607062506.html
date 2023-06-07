@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JSON List to HTML Table</title>
+</head>
+<body>
+    <div id="table-container"></div>
+    <button id="cancel-booking-btn">Cancel Booking</button>
+
+    <script>
+        // Function to handle cancellation of booking
+        function cancelBooking(tableId) {
+            // Perform cancellation logic here, such as making an API call
+            console.log('Cancelled booking for table:', tableId);
+        }
+
+        // Fetch JSON data from the API
+        fetch('http://localhost:8081/api/v1/tables')
+            .then(response => response.json())
+            .then(jsonData => {
+                // Create HTML table
+                var tableContainer = document.getElementById('table-container');
+                var table = document.createElement('table');
+                var tableHead = document.createElement('thead');
+                var tableBody = document.createElement('tbody');
+
+                // Create table header
+                var headerRow = document.createElement('tr');
+                var headers = Object.keys(jsonData[0]);
+                headers.forEach(function(header) {
+                    var th = document.createElement('th');
+                    th.textContent = header;
+                    headerRow.appendChild(th);
+                });
+                tableHead.appendChild(headerRow);
+                table.appendChild(tableHead);
+
+                // Create table rows
+                jsonData.forEach(function(rowData) {
+                    var row = document.createElement('tr');
+                    Object.values(rowData).forEach(function(value) {
+                        var cell = document.createElement('td');
+                        cell.textContent = value;
+                        row.appendChild(cell);
+                    });
+                    tableBody.appendChild(row);
+                });
+                table.appendChild(tableBody);
+
+                // Add table to the container
+                tableContainer.appendChild(table);
+            })
+            .catch(error => {
+                console.log('Error:', error);
+            });
+
+        // Add event listener to the Cancel Booking button
+        var cancelBookingBtn = document.getElementById('cancel-booking-btn');
+        cancelBookingBtn.addEventListener('click', function() {
+            
+        });
+    </script>
+</body>
+</html>

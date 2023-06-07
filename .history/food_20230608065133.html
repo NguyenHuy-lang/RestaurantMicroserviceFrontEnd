@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Customer Home</title>
+</head>
+<body>
+  <h1>Welcome to the Customer Home</h1>
+
+  <div id="food-container"></div>
+
+  <h2>Food Added to Table:</h2>
+  <table id="added-foods-table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Name</th>
+        <th>Quantity</th>
+      </tr>
+    </thead>
+    <tbody id="added-foods-body">
+    </tbody>
+  </table>
+
+  <script>
+    const token = localStorage.getItem("accessToken");
+    const addedFoods = [];
+
+    fetch('http://localhost:8082/api/v1/foods')
+      .then(response => response.json())
+      .then(foods => {
+        const tableContainer = document.getElementById('food-container');
+        const table = document.createElement('table');
+        const tableHead = document.createElement('thead');
+        const tableBody = document.createElement('tbody');
+
+        const headerRow = document.createElement('tr');
+        const headers = ['ID', 'Name', 'Price', 'Quantity', 'Actions'];
+        headers.forEach(header => {
+          const th = document.createElement('th');
+          th.textContent = header;
+          headerRow.appendChild(th);
+        });
+        tableHead.appendChild(headerRow);
+        table.appendChild(tableHead);
+
+        foods.forEach(food => {
+          const row = document.createElement('tr');
+
+          const idCell = document.createElement('td');
+          idCell.textContent = food.id;
+          row.appendChild(idCell);
+
+          const nameCell = document.createElement('td');
+          nameCell.textContent = food.name;
+          row.appendChild(nameCell);
+
+          const priceCell = document.createElement('td');
+          priceCell.textContent = food.price;
+          row.appendChild(priceCell);
+
+          const quantityCell = document.createElement('td');
+          const quantityInput = document.createElement('input');
+          quantityInput.type = 'number';
+          quantityInput.value = 0;
+          quantityCell.appendChild(quantityInput);
+          row.appendChild(quantityCell);
+
+          const actionsCell = document.createElement('td');
+          const addToTableBtn = document.createElement('button');
+          addToTableBtn.textContent = 'Add to Table';
+          addToTableBtn.addEventListener('click', function() {
+            const quantity = parseInt(quantityInput.value);
+            if (quantity > 0) {
+              addFoodToTable(food.id, quantity);
+            }
+          });
+          actionsCell.appendChild(addToTableBtn);
+          row.appendChild(actionsCell);
+
+          tableBody.appendChild(row);
+        });
+
+        table.appendChild(tableBody);
+        tableContainer.appendChild(table);
+      })
+      .catch(error => {
+        console.log('Error:', error);
+      });
+
+    function addFoodToTable(foodId, quantity) {
+        fetch(`http://localhost:8083/api/v1/bookings/${bookingId}/tables/${tableId}`, {
+      const apiUrl = "http://localhost:8083/api/v1/bookings/{bookingId}/tables/{foodId}/foods/{foodId}";
+      const bookingId = localStorage.getItem("bookingSelected");
+      const body = {
+        quantity: quantity
+      };
+
+      fetch(`http://localhost:8083/api/v1/bookings/${bookingId}/tables/${tableId}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        },
+        body: JSON.stringify(body)
+      })
+        .then(response => response.json())
+        .then(data => {
+          console.log('Food added to table:', data);
+          addedFoods.push(data);
+          updateAddedFoodsDisplay();
+          // Perform any necessary actions or update the UI accordingly
+        })
+        .catch(error => {
+          console.log('Error:', error);
+          // Handle the error scenario
+        });
+    }
+
+    function updateAddedFoodsDisplay() {
+      const addedFoodsTable = document.getElementById('added-foods-table');
+      const addedFoodsBody = document.getElementById('added-foods-body');
+      addedFoodsBody.innerHTML = '';
+
+      addedFoods.forEach(food => {
+        const row = document.createElement('tr');
+
+        const idCell = document.createElement('td');
+        idCell.textContent = food.id;
+        row.appendChild(idCell);
+
+        const nameCell = document.createElement('td');
+        nameCell.textContent = food.name;
+        row.appendChild(nameCell);
+
+        const quantityCell = document.createElement('td');
+        quantityCell.textContent = food.quantity;
+        row.appendChild(quantityCell);
+
+        addedFoodsBody.appendChild(row);
+      });
+    }
+  </script>
+</body>
+</html>

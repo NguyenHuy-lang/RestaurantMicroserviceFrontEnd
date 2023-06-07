@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>JSON List to HTML Table</title>
+</head>
+<body>
+    <div id="table-container"></div>
+<!-- Place this element wherever you want to display the added table IDs -->
+    <p>Added Tables: <span id="addedTablesContainer"></span></p>
+
+    <script>
+        const token = localStorage.getItem("accessToken");
+    
+        // Function to handle adding a table to a booking
+        const addedTables = [];
+
+        // Function to handle adding a table to a booking
+        function addTableToBooking(tableId) {
+            const bookingId = localStorage.getItem("bookingSelected")
+            // Perform the API call to add the table to the booking
+            fetch(`http://localhost:8083/api/v1/bookings/${bookingId}/tables/${tableId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Table added to booking:', data);
+                    // Add the table ID to the addedTables array
+                    addedTables.push(tableId);
+                    // Update the displayed table IDs
+                    updateAddedTablesDisplay();
+                    // Perform any necessary actions or update the UI accordingly
+                })
+                .catch(error => {
+                    console.log('Error:', error);
+                    // Handle the error scenario
+                });
+        }
+
+        // Function to update the displayed table IDs
+        function updateAddedTablesDisplay() {
+            const addedTablesContainer = document.getElementById('addedTablesContainer');
+            addedTablesContainer.innerHTML = ''; // Clear the container
+
+            const table = document.createElement('table');
+            const tableHead = document.createElement('thead');
+            const tableBody = document.createElement('tbody');
+
+            // Create table header row
+            const headerRow = document.createElement('tr');
+            const headers = ['ID', 'Name', 'Status', 'Capacity'];
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+            tableHead.appendChild(headerRow);
+            table.appendChild(tableHead);
+
+            // Create table body rows
+            addedTables.forEach(tableData => {
+                const row = document.createElement('tr');
+                Object.values(tableData).forEach(value => {
+                    const cell = document.createElement('td');
+                    cell.textContent = value;
+                    row.appendChild(cell);
+                });
+                tableBody.appendChild(row);
+            });
+            table.appendChild(tableBody);
+
+            addedTablesContainer.appendChild(table);
+        }
+
+
+        // Fetch JSON data from the API
+        fetch('http://localhost:8081/api/v1/tables')
+            .then(response => response.json())
+            .then(jsonData => {
+                // Create HTML table
+                var tableContainer = document.getElementById('table-container');
+                var table = document.createElement('table');
+                var tableHead = document.createElement('thead');
+                var tableBody = document.createElement('tbody');
+
+                // Create table header
+                var headerRow = document.createElement('tr');
+                var headers = Object.keys(jsonData[0]);
+                headers.push('Actions'); // Add Actions column header
+                headers.forEach(function(header) {
+                    var th = document.createElement('th');
+                    th.textContent = header;
+                    headerRow.appendChild(th);
+                });
+                tableHead.appendChild(headerRow);
+                table.appendChild(tableHead);
+
+                // Create table rows
+                jsonData.forEach(function(rowData) {
+                    var row = document.createElement('tr');
+                    Object.entries(rowData).forEach(function([key, value]) {
+                        var cell = document.createElement('td');
+                        cell.textContent = value;
+                        row.appendChild(cell);
+                    });
+
+                    // Create add to booking button
+                    var addToBookingBtn = document.createElement('button');
+                    addToBookingBtn.textContent = 'Add to Booking';
+                    addToBookingBtn.addEventListener('click', function() {
+                        // Call the addTableToBooking function with the appropriate booking and table IDs
+                        addTableToBooking(
+                            rowData.id);
+                    });
+                    var actionsCell = document.createElement('td');
+                    actionsCell.appendChild(addToBookingBtn);
+                    row.appendChild(actionsCell);
+
+                    tableBody.appendChild(row);
+                });
+                table.appendChild(tableBody);
+
+                // Add table to the container
+                tableContainer.appendChild(table);
+            })
+            .catch(error => {
+                console.log('Error:', error);
+            });
+    </script>
+</body>
+</html>

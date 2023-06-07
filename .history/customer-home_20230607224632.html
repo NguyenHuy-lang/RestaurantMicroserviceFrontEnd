@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Customer Home</title>
+</head>
+<body>
+  <h1>Welcome to the Customer Home</h1>
+  
+  <button onclick="createBooking()">Create Booking</button>
+  <button onclick="payment()">Payment</button>
+  
+  <table id="bookingTable">
+    <tr>
+      <th>ID</th>
+      <th>Status</th>
+      <th>Create Date</th>
+    </tr>
+  </table>
+
+  <script>
+    const apiUrl = "http://localhost:8083/api/v1/bookings/";
+    const token = localStorage.getItem("accessToken");
+
+    const appendBookingRow = (booking) => {
+      const table = document.getElementById("bookingTable");
+      const newRow = table.insertRow();
+
+      const idCell = newRow.insertCell();
+      const statusCell = newRow.insertCell();
+      const createDateCell = newRow.insertCell();
+      const chooseTableCell = newRow.insertCell();
+
+      idCell.innerHTML = booking.id;
+      statusCell.innerHTML = booking.status;
+      createDateCell.innerHTML = booking.createDate;
+
+      const chooseTableButton = document.createElement("button");
+      chooseTableButton.innerText = "Choose Table";
+      chooseTableButton.addEventListener("click", () => {
+        // Perform the desired action when the button is clicked
+        // You can access the booking details using the 'booking' variable
+        localStorage.setItem("bookingSelected", )
+ booking.id);
+      });
+
+      chooseTableCell.appendChild(chooseTableButton);
+    };
+
+    const createBooking = () => {
+      fetch(apiUrl, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + token
+        }
+      })
+        .then((res) => res.json())
+        .then((booking) => {
+          appendBookingRow(booking);
+        });
+    };
+  </script>
+</body>
+</html>

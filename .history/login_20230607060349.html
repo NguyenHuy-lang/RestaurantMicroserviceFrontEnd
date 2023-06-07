@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Login Form</title>
+</head>
+<body>
+  <form id="my-form">
+    <h2>Login</h2>
+    <label for="username">Username:</label>
+    <input type="text" id="username" name="username" required>
+    <br>
+    <label for="password">Password:</label>
+    <input type="password" id="password" name="password" required>
+    <br>
+    <button onclick="login()" value="Login">
+  </form>
+</body>
+  <script>
+    const form = document.getElementById("my-form");
+    form.addEventListener("submit", function (event) {
+        event.preventDefault();
+        // Your form submission code here
+    });
+
+    const login = () => {
+        var _username = document.querySelector("#username").value;
+        var _password = document.querySelector("#password").value;
+        const apiUrl = "http://localhost:8083/api/v1/bookings/";  
+        var murl = "http://localhost:8080/api/v1/auth/authenticate";
+        const loginData = {
+            email: _username,
+            password: _password
+        }
+        fetch(murl, {
+          method: 'POST',
+          headers: {
+              'Content-Type': "application/json",
+          },
+          body: JSON.stringify(loginData)
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Failed to log in');
+            }
+            return response.json();
+
+        })
+        .then(data => {
+            localStorage.setItem("accessToken", data.token)
+            window.location.href = "http://127.0.0.1:5500/customer-home.html"; // replace with your main page URL
+        })
+        .catch(error => {
+            console.log('Error:', error);
+        });
+      }
+
+  </script>
+</html>
