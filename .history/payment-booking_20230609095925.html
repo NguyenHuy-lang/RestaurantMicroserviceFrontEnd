@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Booking Payment Table</title>
+  <style>
+    table {
+      border-collapse: collapse;
+      width: 100%;
+    }
+
+    th, td {
+      border: 1px solid #ddd;
+      padding: 8px;
+      text-align: left;
+    }
+
+    th {
+      background-color: #f2f2f2;
+    }
+  </style>
+</head>
+<body>
+  <div id="tableContainer"></div>
+
+  <script>
+    const token = localStorage.getItem("accessToken");
+    // Fetch the API data
+    fetch('http://localhost:8083/api/v1/bookings/payment', {
+        method: 'GET',
+        headers: {
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer ' + token
+      }
+    })
+      .then(response => response.json())
+      .then(data => {
+        // Function to generate the HTML table row
+        function generateTableRow(id, createDate, checkIn, customerName, total) {
+          return `
+            <tr>
+              <td>${id}</td>
+              <td>${createDate}</td>
+              <td>${checkIn || '-'}</td>
+              <td>${customerName}</td>
+              <td>${total}</td>
+            </tr>
+          `;
+        }
+
+        // Function to generate the HTML table
+        function generateTable(data) {
+          let tableHtml = `
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Create Date</th>
+                  <th>Check In</th>
+                  <th>Customer Name</th>
+                  <th>Total</th>
+                </tr>
+              </thead>
+              <tbody>
+          `;
+
+          data.forEach(entry => {
+            const { id, createDate, checkIn, customer, total } = entry;
+            const customerName = customer.user.username || 'N/A';
+            const tableRow = generateTableRow(id, createDate, checkIn, customerName, total);
+            tableHtml += tableRow;
+          });
+
+          tableHtml += `
+              </tbody>
+            </table>
+          `;
+
+          return tableHtml;
+        }
+
+        // Call the function to generate the table HTML
+        const tableHtml = generateTable(data);
+
+        // Insert the generated HTML into the 'tableContainer' element
+        const tableContainer = document.getElementById('tableContainer');
+        tableContainer.innerHTML = tableHtml;
+      })
+      .catch(error => {
+        console.log('Error:', error);
+        // Handle the error scenario
+      });
+  </script>
+</body>
+</html>

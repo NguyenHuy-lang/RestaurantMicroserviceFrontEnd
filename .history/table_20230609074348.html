@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>JSON List to HTML Table</title>
+</head>
+
+<body>
+    <div id="table-container"></div>
+    <!-- Place this element wherever you want to display the added table IDs -->
+    <p>Added Tables: <span id="addedTablesContainer"></span></p>
+
+    <script>
+        const token = localStorage.getItem("accessToken");
+
+        // Function to handle adding a table to a booking
+        const addedTables = [];
+        const bookingId = localStorage.getItem("bookingSelected");
+        // Function to handle adding a table to a booking
+        function addTableToBooking(tableId) {
+
+            // Perform the API call to add the table to the booking
+            fetch(`http://localhost:8083/api/v1/bookings/${bookingId}/tables/${tableId}`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'Authorization': 'Bearer ' + token
+                }
+            })
+                .then(response => response.json())
+                .then(data => {
+                    console.log('Table added to booking:', data);
+                    addedTables.push(data);
+                    // Update the displayed table IDs
+                    updateAddedTablesDisplay();
+                    // Perform any necessary actions or update the UI accordingly
+                })
+                .catch(error => {
+                    console.log('Error:', error);
+                    // Handle the error scenario
+                });
+        }
+
+        function updateAddedTablesDisplay() {
+            const addedTablesContainer = document.getElementById('addedTablesContainer');
+            addedTablesContainer.innerHTML = ''; // Clear the container
+
+            const table = document.createElement('table');
+            const tableHead = document.createElement('thead');
+            const tableBody = document.createElement('tbody');
+
+            // Create table header row
+            const headerRow = document.createElement('tr');
+            const headers = ['ID', 'Name', 'Status', 'Capacity', 'Actions'];
+            headers.forEach(header => {
+                const th = document.createElement('th');
+                th.textContent = header;
+                headerRow.appendChild(th);
+            });
+            tableHead.appendChild(headerRow);
+            table.appendChild(tableHead);
+
+            // Create table body rows
+            addedTables.forEach(tableData => {
+                const row = document.createElement('tr');
+
+                const idCell = document.createElement('td');
+                idCell.textContent = tableData.id;
+                row.appendChild(idCell);
+
+                const nameCell = document.createElement('td');
+                nameCell.textContent = tableData.name;
+                row.appendChild(nameCell);
+
+                const statusCell = document.createElement('td');
+                statusCell.textContent = tableData.status;
+                row.appendChild(statusCell);
+
+                const capacityCell = document.createElement('td');
+                capacityCell.textContent = tableData.capacity;
+                row.appendChild(capacityCell);
+
+                const actionsCell = document.createElement('td');
+                const selectFoodBtn = document.createElement('button');
+                selectFoodBtn.textContent = 'Select Food';
+                selectFoodBtn.addEventListener('click', function () {
+                    localStorage.setItem("tableId", tableData.id)
+                    window.location.href = "http://127.0.0.1:5500/food.html";
+                });
+                actionsCell.appendChild(selectFoodBtn);
+                const deleteButton = document.createElement('button');
+                deleteButton.textContent = "delete Table";
+                deleteButton.addEventListener('click', function () {
+                    console.log(idCell)
+                    fetch(`http://localhost:8083/api/v1/bookings/${bookingId}/tables/${tableId}`, {
+                        method: 'GET',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': 'Bearer ' + token
+                        }
+                    })
+                        .then(response => {
+                            if (!response.ok) {
+                                throw new Error('Network response was not ok');
+                            }
+                            return response.json();
+                        })
+                        .then(data => {
+                            console.log('Table added to booking:', data);
+                            data.forEach(table => {
+                                addedTables.push(table);
+                            });
+                            // Update the displayed table IDs
+                            updateAddedTablesDisplay();
+                            // Perform any necessary actions or update the UI accordingly
+                        })
+                        .catch(error => {
+                            console.log('Error:', error);
+                            // Handle the error scenario
+                        });
+                    F
+                })
+                actionsCell.appendChild(deleteButton)
+                row.appendChild(actionsCell);
+
+                tableBody.appendChild(row);
+            });
+            table.appendChild(tableBody);
+
+            addedTablesContainer.appendChild(table);
+        }
+
+
+        fetch(`http://localhost:8083/api/v1/bookings/${bookingId}/tables`, {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            }
+        })
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('Table added to booking:', data);
+                data.forEach(table => {
+                    addedTables.push(table);
+                });
+                // Update the displayed table IDs
+                updateAddedTablesDisplay();
+                // Perform any necessary actions or update the UI accordingly
+            })
+            .catch(error => {
+                console.log('Error:', error);
+                // Handle the error scenario
+            });
+
+        // Fetch JSON data from the API
+        fetch('http://localhost:8081/api/v1/tables')
+            .then(response => response.json())
+            .then(jsonData => {
+                // Create HTML table
+                var tableContainer = document.getElementById('table-container');
+                var table = document.createElement('table');
+                var tableHead = document.createElement('thead');
+                var tableBody = document.createElement('tbody');
+
+                // Create table header
+                var headerRow = document.createElement('tr');
+                var headers = Object.keys(jsonData[0]);
+                headers.push('Actions'); // Add Actions column header
+                headers.forEach(function (header) {
+                    var th = document.createElement('th');
+                    th.textContent = header;
+                    headerRow.appendChild(th);
+                });
+                tableHead.appendChild(headerRow);
+                table.appendChild(tableHead);
+
+                // Create table rows
+                jsonData.forEach(function (rowData) {
+                    var row = document.createElement('tr');
+                    Object.entries(rowData).forEach(function ([key, value]) {
+                        var cell = document.createElement('td');
+                        cell.textContent = value;
+                        row.appendChild(cell);
+                    });
+
+                    // Create add to booking button
+                    var addToBookingBtn = document.createElement('button');
+                    addToBookingBtn.textContent = 'Add to Booking';
+                    addToBookingBtn.addEventListener('click', function () {
+                        // Call the addTableToBooking function with the appropriate booking and table IDs
+                        addTableToBooking(
+                            rowData.id);
+                    });
+                    var actionsCell = document.createElement('td');
+                    actionsCell.appendChild(addToBookingBtn);
+                    row.appendChild(actionsCell);
+
+                    tableBody.appendChild(row);
+                });
+                table.appendChild(tableBody);
+
+                // Add table to the container
+                tableContainer.appendChild(table);
+            })
+            .catch(error => {
+                console.log('Error:', error);
+            });
+    </script>
+</body>
+
+</html>
